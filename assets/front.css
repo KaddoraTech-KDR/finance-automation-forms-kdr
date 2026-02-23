@@ -1,0 +1,151 @@
+/* Finance Automation Forms kdr — Frontend UI */
+
+.fafkdr-form {
+  --fafkdr-primary: #2563eb;
+  --fafkdr-primary-hover: #1e40af;
+  --fafkdr-border: #e5e7eb;
+  --fafkdr-bg: #ffffff;
+  --fafkdr-bg-soft: #f8fafc;
+  --fafkdr-text: #0f172a;
+  --fafkdr-muted: #64748b;
+  --fafkdr-radius: 10px;
+  --fafkdr-shadow: 0 2px 6px rgba(0,0,0,0.05);
+
+  font-family: -apple-system, BlinkMacSystemFont, "Segoe UI", Roboto, sans-serif;
+  color: var(--fafkdr-text);
+  max-width: 900px;
+  margin: 20px auto;
+}
+
+.fafkdr-card {
+  background: var(--fafkdr-bg);
+  border: 1px solid var(--fafkdr-border);
+  border-radius: var(--fafkdr-radius);
+  padding: 18px;
+  margin-bottom: 16px;
+  box-shadow: var(--fafkdr-shadow);
+}
+
+.fafkdr-card__title {
+  font-size: 16px;
+  font-weight: 600;
+  margin-bottom: 12px;
+}
+
+.fafkdr-field {
+  margin-bottom: 14px;
+}
+
+.fafkdr-field label {
+  display: block;
+  font-size: 13px;
+  margin-bottom: 4px;
+  font-weight: 500;
+}
+
+.fafkdr-field input,
+.fafkdr-field select,
+.fafkdr-field textarea {
+  width: 100%;
+  padding: 9px 10px;
+  border: 1px solid var(--fafkdr-border);
+  border-radius: 6px;
+  font-size: 14px;
+  background: #fff;
+}
+
+.fafkdr-field textarea {
+  min-height: 70px;
+  resize: vertical;
+}
+
+.fafkdr-field input:focus,
+.fafkdr-field select:focus,
+.fafkdr-field textarea:focus {
+  border-color: var(--fafkdr-primary);
+  outline: none;
+}
+
+.fafkdr-error {
+  color: #dc2626;
+  font-size: 12px;
+  margin-top: 3px;
+  display: block;
+}
+
+.fafkdr-notice {
+  padding: 12px 14px;
+  border-radius: 8px;
+  margin-bottom: 14px;
+  font-size: 14px;
+}
+
+.fafkdr-notice--success {
+  background: #ecfdf5;
+  color: #065f46;
+  border: 1px solid #a7f3d0;
+}
+
+.fafkdr-notice--error {
+  background: #fef2f2;
+  color: #7f1d1d;
+  border: 1px solid #fecaca;
+}
+
+.fafkdr-btn {
+  display: inline-block;
+  padding: 10px 16px;
+  border-radius: 8px;
+  border: none;
+  font-size: 14px;
+  cursor: pointer;
+}
+
+.fafkdr-btn--primary {
+  background: var(--fafkdr-primary);
+  color: #fff;
+}
+
+.fafkdr-btn--primary:hover {
+  background: var(--fafkdr-primary-hover);
+}
+
+.fafkdr-btn--secondary {
+  background: #e5e7eb;
+  color: #111;
+}
+
+.fafkdr-submit-row {
+  margin-top: 18px;
+  text-align: right;
+}
+
+/* Repeater table */
+
+.fafkdr-items {
+  width: 100%;
+  border-collapse: collapse;
+  margin-top: 10px;
+}
+
+.fafkdr-items th,
+.fafkdr-items td {
+  border: 1px solid var(--fafkdr-border);
+  padding: 8px;
+  font-size: 13px;
+}
+
+.fafkdr-items th {
+  background: var(--fafkdr-bg-soft);
+  text-align: left;
+}
+
+.fafkdr-add-row {
+  margin-top: 10px;
+}
+
+.fafkdr-remove-row {
+  color: #dc2626;
+  cursor: pointer;
+  font-size: 13px;
+}

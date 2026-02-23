@@ -1,0 +1,35 @@
+/* Finance Automation Forms kdr — Admin UI */
+
+.fafkdr-admin .fafkdr-cards {
+  display: flex;
+  gap: 20px;
+  margin-top: 20px;
+}
+
+.fafkdr-admin .fafkdr-card {
+  background: #fff;
+  border: 1px solid #e5e7eb;
+  border-radius: 10px;
+  padding: 16px;
+  flex: 1;
+}
+
+.fafkdr-admin h1 {
+  margin-bottom: 10px;
+}
+
+.fafkdr-admin h2 {
+  margin-top: 0;
+  font-size: 16px;
+}
+
+.fafkdr-admin ul,
+.fafkdr-admin ol {
+  margin-left: 18px;
+}
+
+.fafkdr-admin code {
+  background: #f1f5f9;
+  padding: 3px 6px;
+  border-radius: 4px;
+}
