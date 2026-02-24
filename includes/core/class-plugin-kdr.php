@@ -11,16 +11,8 @@ if ( ! class_exists( 'FAFKDR_Plugin_kdr' ) ) :
 
 final class FAFKDR_Plugin_kdr {
 
-	/**
-	 * Singleton instance.
-	 *
-	 * @var FAFKDR_Plugin_kdr|null
-	 */
 	private static $instance_kdr = null;
 
-	/**
-	 * Get instance.
-	 */
 	public static function instance_kdr(): FAFKDR_Plugin_kdr {
 		if ( null === self::$instance_kdr ) {
 			self::$instance_kdr = new self();
@@ -28,24 +20,27 @@ final class FAFKDR_Plugin_kdr {
 		return self::$instance_kdr;
 	}
 
-	/**
-	 * Prevent direct construction.
-	 */
 	private function __construct() {}
 
 	/**
-	 * Init hooks.
+	 * Init plugin (called from main file on plugins_loaded).
+	 *
+	 * IMPORTANT: Do NOT hook includes/boot back onto plugins_loaded,
+	 * because init_kdr() itself is called during plugins_loaded.
 	 */
 	public function init_kdr(): void {
+
 		// Load translations.
 		add_action( 'init', array( $this, 'load_textdomain_kdr' ) );
 
 		// Ensure DB schema is up to date even after updates.
-		add_action( 'plugins_loaded', array( $this, 'maybe_migrate_kdr' ), 5 );
+		$this->maybe_migrate_kdr();
 
-		// Load components.
-		add_action( 'plugins_loaded', array( $this, 'includes_kdr' ), 6 );
-		add_action( 'plugins_loaded', array( $this, 'boot_components_kdr' ), 7 );
+		// Load required classes now (not later).
+		$this->includes_kdr();
+
+		// Boot admin/frontend now.
+		$this->boot_components_kdr();
 	}
 
 	public function load_textdomain_kdr(): void {
@@ -63,37 +58,24 @@ final class FAFKDR_Plugin_kdr {
 	}
 
 	/**
-	 * Load required class files (lean v1).
-	 *
-	 * We keep includes minimal. Later we can expand modules without breaking.
+	 * Include required files immediately.
 	 */
 	public function includes_kdr(): void {
 		$base = trailingslashit( FAFKDR_PLUGIN_DIR );
 
-		// Core utilities (optional, create later as needed).
-		$core_files = array(
-			'includes/core/class-admin-kdr.php',
-			'includes/core/class-frontend-kdr.php',
-		);
+		// Core components (required for menu + shortcode).
+		require_once $base . 'includes/core/class-admin-kdr.php';
+		require_once $base . 'includes/core/class-frontend-kdr.php';
 
-		foreach ( $core_files as $rel ) {
-			$path = $base . $rel;
-			if ( file_exists( $path ) ) {
-				require_once $path;
-			}
-		}
-
-		// Forms controller (create later; safe to ignore if not present yet).
+		// Forms controller (required for rendering/handling forms).
 		$forms_controller = $base . 'includes/forms/class-forms-kdr.php';
 		if ( file_exists( $forms_controller ) ) {
 			require_once $forms_controller;
 		}
-
-		// Finance + automation can be required later when you add them.
 	}
 
 	/**
-	 * Boot admin/frontend components if available.
+	 * Boot components.
 	 */
 	public function boot_components_kdr(): void {
 		if ( is_admin() && class_exists( 'FAFKDR_Admin_kdr' ) ) {
