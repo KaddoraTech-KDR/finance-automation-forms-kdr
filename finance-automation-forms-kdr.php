@@ -66,3 +66,10 @@ function fafkdr_run_plugin() {
 }
 
 add_action( 'plugins_loaded', 'fafkdr_run_plugin' );
+
+// Next steps (v2)
+// Roadmap
+// Improve submissions UI + actions
+// Add finance calculator + GST split
+// Add automation: PDF + Email + Export
+// Integrations: CRM / Accounting
