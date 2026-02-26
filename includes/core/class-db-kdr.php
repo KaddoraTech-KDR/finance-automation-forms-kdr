@@ -14,7 +14,7 @@ final class FAFKDR_DB_kdr {
 	/**
 	 * Schema version. Increment when changing tables.
 	 */
-	const SCHEMA_VERSION = '1.0.0';
+	const SCHEMA_VERSION = '1.0.1';
 
 	/**
 	 * Option key to store schema version.
@@ -22,7 +22,7 @@ final class FAFKDR_DB_kdr {
 	const OPTION_SCHEMA_VERSION = 'fafkdr_schema_version';
 
 	/**
-	 * Table names (without $wpdb->prefix).
+	 * Table names.
 	 */
 	public static function table_forms_kdr(): string {
 		global $wpdb;
@@ -54,6 +54,7 @@ final class FAFKDR_DB_kdr {
 	public static function maybe_migrate_kdr(): void {
 		$installed = get_option( self::OPTION_SCHEMA_VERSION );
 
+		// Always attempt dbDelta if version mismatch.
 		if ( $installed !== self::SCHEMA_VERSION ) {
 			self::create_tables_kdr();
 			update_option( self::OPTION_SCHEMA_VERSION, self::SCHEMA_VERSION );
@@ -73,7 +74,6 @@ final class FAFKDR_DB_kdr {
 		$forms_table = self::table_forms_kdr();
 		$subs_table  = self::table_submissions_kdr();
 
-		// forms: store form definitions/settings JSON (v1: templates can be hardcoded; table enables later builder)
 		$sql_forms = "CREATE TABLE {$forms_table} (
 			id BIGINT(20) UNSIGNED NOT NULL AUTO_INCREMENT,
 			name VARCHAR(191) NOT NULL,
@@ -87,7 +87,7 @@ final class FAFKDR_DB_kdr {
 			KEY status (status)
 		) {$charset_collate};";
 
-		// submissions: store user submissions + calculated totals (calc_json later)
+		// IMPORTANT: payload is stored in column `data` (used by admin details page)
 		$sql_subs = "CREATE TABLE {$subs_table} (
 			id BIGINT(20) UNSIGNED NOT NULL AUTO_INCREMENT,
 			form_type VARCHAR(50) NOT NULL,
@@ -123,8 +123,8 @@ final class FAFKDR_DB_kdr {
 		$table = self::table_submissions_kdr();
 
 		$form_type      = isset( $args['form_type'] ) ? sanitize_key( (string) $args['form_type'] ) : '';
-		$form_id        = isset( $args['form_id'] ) ? absint( $args['form_id'] ) : null;
-		$customer_email = isset( $args['customer_email'] ) ? sanitize_email( (string) $args['customer_email'] ) : null;
+		$form_id        = isset( $args['form_id'] ) ? absint( $args['form_id'] ) : 0;
+		$customer_email = isset( $args['customer_email'] ) ? sanitize_email( (string) $args['customer_email'] ) : '';
 		$status         = isset( $args['status'] ) ? sanitize_key( (string) $args['status'] ) : 'submitted';
 
 		$data_json = wp_json_encode( $payload );
@@ -134,47 +134,47 @@ final class FAFKDR_DB_kdr {
 
 		$calc_json = null;
 		if ( isset( $args['calc'] ) ) {
-			$calc_json = wp_json_encode( $args['calc'] );
-			if ( false === $calc_json ) {
-				$calc_json = null;
+			$tmp = wp_json_encode( $args['calc'] );
+			if ( false !== $tmp ) {
+				$calc_json = $tmp;
 			}
 		}
 
 		$meta_json = null;
 		if ( isset( $args['meta'] ) ) {
-			$meta_json = wp_json_encode( $args['meta'] );
-			if ( false === $meta_json ) {
-				$meta_json = null;
+			$tmp = wp_json_encode( $args['meta'] );
+			if ( false !== $tmp ) {
+				$meta_json = $tmp;
 			}
 		}
 
 		$now = current_time( 'mysql' );
 
-		$inserted = $wpdb->insert(
-			$table,
-			array(
-				'form_type'      => $form_type,
-				'form_id'        => $form_id ?: null,
-				'customer_email' => $customer_email ?: null,
-				'status'         => $status,
-				'data'           => $data_json,
-				'calc'           => $calc_json,
-				'meta'           => $meta_json,
-				'created_at'     => $now,
-				'updated_at'     => $now,
-			),
-			array(
-				'%s',
-				$form_id ? '%d' : '%s',
-				$customer_email ? '%s' : '%s',
-				'%s',
-				'%s',
-				'%s',
-				'%s',
-				'%s',
-				'%s',
-			)
+		$data = array(
+			'form_type'      => $form_type,
+			'form_id'        => ( $form_id > 0 ) ? $form_id : null,
+			'customer_email' => ( '' !== $customer_email ) ? $customer_email : null,
+			'status'         => $status,
+			'data'           => $data_json,
+			'calc'           => $calc_json,
+			'meta'           => $meta_json,
+			'created_at'     => $now,
+			'updated_at'     => $now,
 		);
+
+		$formats = array(
+			'%s', // form_type
+			'%d', // form_id (NULL is ok)
+			'%s', // customer_email (NULL is ok)
+			'%s', // status
+			'%s', // data
+			'%s', // calc (NULL is ok)
+			'%s', // meta (NULL is ok)
+			'%s', // created_at
+			'%s', // updated_at
+		);
+
+		$inserted = $wpdb->insert( $table, $data, $formats );
 
 		if ( false === $inserted ) {
 			return new WP_Error( 'fafkdr_db_insert_failed', 'Failed to insert submission.' );
@@ -200,6 +200,98 @@ final class FAFKDR_DB_kdr {
 			$wpdb->prepare( "SELECT * FROM {$table} WHERE id = %d", $id ),
 			ARRAY_A
 		);
+	}
+
+	/**
+	 * List submissions (for admin list/dashboard).
+	 */
+	public static function list_submissions_kdr( int $limit = 100 ): array {
+		global $wpdb;
+
+		$table = self::table_submissions_kdr();
+		$limit = max( 1, min( 500, absint( $limit ) ) );
+
+		return $wpdb->get_results(
+			$wpdb->prepare( "SELECT id, form_type, customer_email, status, created_at FROM {$table} ORDER BY id DESC LIMIT %d", $limit ),
+			ARRAY_A
+		);
+	}
+
+	/**
+	 * Update a submission status.
+	 */
+	public static function update_submission_status_kdr( int $id, string $status ): bool {
+		global $wpdb;
+
+		$table  = self::table_submissions_kdr();
+		$id     = absint( $id );
+		$status = sanitize_key( $status );
+
+		if ( $id <= 0 || '' === $status ) {
+			return false;
+		}
+
+		$now = current_time( 'mysql' );
+
+		$updated = $wpdb->update(
+			$table,
+			array(
+				'status'     => $status,
+				'updated_at' => $now,
+			),
+			array( 'id' => $id ),
+			array( '%s', '%s' ),
+			array( '%d' )
+		);
+
+		return ( false !== $updated );
+	}
+
+	/**
+	 * JSON decode helpers (admin pages should use these).
+	 */
+	public static function decode_data_kdr( array $row ): array {
+		$json = isset( $row['data'] ) ? (string) $row['data'] : '';
+		$decoded = ( '' !== $json ) ? json_decode( $json, true ) : null;
+		return is_array( $decoded ) ? $decoded : array();
+	}
+
+	public static function decode_calc_kdr( array $row ): array {
+		$json = isset( $row['calc'] ) ? (string) $row['calc'] : '';
+		$decoded = ( '' !== $json ) ? json_decode( $json, true ) : null;
+		return is_array( $decoded ) ? $decoded : array();
+	}
+
+	public static function decode_meta_kdr( array $row ): array {
+		$json = isset( $row['meta'] ) ? (string) $row['meta'] : '';
+		$decoded = ( '' !== $json ) ? json_decode( $json, true ) : null;
+		return is_array( $decoded ) ? $decoded : array();
+	}
+
+	/**
+	 * Counts (for dashboard).
+	 */
+	public static function count_submissions_kdr(): int {
+		global $wpdb;
+		$table = self::table_submissions_kdr();
+		$count = (int) $wpdb->get_var( "SELECT COUNT(*) FROM {$table}" ); // phpcs:ignore WordPress.DB.DirectDatabaseQuery.DirectQuery
+		return max( 0, $count );
+	}
+
+	public static function count_by_form_type_kdr(): array {
+		global $wpdb;
+		$table = self::table_submissions_kdr();
+
+		$rows = $wpdb->get_results(
+			"SELECT form_type, COUNT(*) as cnt FROM {$table} GROUP BY form_type ORDER BY cnt DESC",
+			ARRAY_A
+		); // phpcs:ignore WordPress.DB.DirectDatabaseQuery.DirectQuery
+
+		$out = array();
+		foreach ( $rows as $r ) {
+			$out[ (string) $r['form_type'] ] = (int) $r['cnt'];
+		}
+		return $out;
 	}
 }
 

@@ -33,3 +33,308 @@
   padding: 3px 6px;
   border-radius: 4px;
 }
+
+/* Dashboard layout */
+.fafkdr-dashboard .fafkdr-header {
+  display: flex;
+  align-items: flex-start;
+  justify-content: space-between;
+  gap: 14px;
+  margin: 12px 0 14px;
+  max-width: 1180px;
+}
+
+.fafkdr-title {
+  margin: 0 0 6px;
+  font-size: 22px;
+}
+
+.fafkdr-subtitle {
+  margin: 0;
+  color: #64748b;
+}
+
+.fafkdr-header-actions {
+  display: flex;
+  gap: 8px;
+  flex-wrap: wrap;
+}
+
+.fafkdr-grid {
+  display: grid;
+  gap: 14px;
+  max-width: 1180px;
+}
+
+.fafkdr-grid--3 {
+  grid-template-columns: repeat(3, minmax(0, 1fr));
+}
+.fafkdr-grid--2 {
+  grid-template-columns: repeat(2, minmax(0, 1fr));
+}
+
+@media (max-width: 1024px) {
+  .fafkdr-grid--3,
+  .fafkdr-grid--2 {
+    grid-template-columns: 1fr;
+  }
+  .fafkdr-dashboard .fafkdr-header {
+    flex-direction: column;
+  }
+}
+
+/* Stats */
+/* ---------- Dashboard stats grid ---------- */
+.fafkdr-grid--3{
+  display: grid;
+  grid-template-columns: repeat(3, minmax(0, 1fr));
+  gap: 16px;
+  margin-top: 16px;
+}
+
+/* ---------- Stat card base ---------- */
+.fafkdr-stat{
+  background: #fff;
+  border: 1px solid #e5e7eb;
+  border-radius: 14px;
+  padding: 18px 18px;
+  box-shadow: 0 10px 24px rgba(15, 23, 42, 0.06);
+
+  display: flex;
+  flex-direction: column;
+  justify-content: flex-start;
+
+  min-height: 120px; /* keeps all cards same height */
+}
+
+/* Primary card slightly highlighted */
+.fafkdr-stat--primary{
+  border-color: #c7d2fe;
+  background: linear-gradient(180deg, #ffffff 0%, #f8fafc 100%);
+}
+
+/* Title */
+.fafkdr-stat__label{
+  font-size: 13px;
+  font-weight: 600;
+  color: #334155;
+  margin: 0;
+}
+
+/* Big number */
+.fafkdr-stat__value{
+  margin-top: 10px;
+  font-size: 40px;
+  font-weight: 800;
+  line-height: 1;
+  color: #0f172a;
+}
+
+/* Hint text under value */
+.fafkdr-stat__hint{
+  margin-top: 8px;
+  font-size: 12px;
+  color: #64748b;
+}
+
+/* Badge sits right under value (like your screenshot goal) */
+.fafkdr-stat .fafkdr-badge{
+  margin-top: 10px;
+  align-self: flex-start;
+}
+
+/* Badge styling (pill) */
+.fafkdr-badge{
+  display: inline-flex;
+  align-items: center;
+  gap: 8px;
+  padding: 6px 14px;
+  border-radius: 999px;
+  font-size: 12px;
+  font-weight: 700;
+  border: 1px solid transparent;
+}
+
+/* Badge colors */
+.fafkdr-badge--blue{
+  background: #eff6ff;
+  border-color: #bfdbfe;
+  color: #1d4ed8;
+}
+.fafkdr-badge--purple{
+  background: #f5f3ff;
+  border-color: #ddd6fe;
+  color: #6d28d9;
+}
+
+/* Responsive */
+@media (max-width: 980px){
+  .fafkdr-grid--3{ grid-template-columns: 1fr; }
+  .fafkdr-stat{ min-height: auto; }
+}
+
+/* Card header helpers */
+.fafkdr-card__head {
+  display: flex;
+  align-items: center;
+  justify-content: space-between;
+  gap: 10px;
+  margin-bottom: 10px;
+}
+.fafkdr-card__title {
+  margin: 0;
+  font-size: 16px;
+}
+
+.fafkdr-card--soft {
+  background: linear-gradient(135deg, #ffffff, #f8fafc);
+}
+
+/* Badges + pills */
+.fafkdr-pill {
+  font-size: 12px;
+  color: #334155;
+  background: #f1f5f9;
+  border: 1px solid #e2e8f0;
+  padding: 4px 10px;
+  border-radius: 999px;
+}
+
+.fafkdr-badge {
+  display: inline-flex;
+  align-items: center;
+  justify-content: center;
+  font-size: 11px;
+  font-weight: 800;
+  padding: 4px 10px;
+  border-radius: 999px;
+  border: 1px solid transparent;
+  min-width: 72px;
+}
+
+.fafkdr-badge--blue {
+  background: #eff6ff;
+  color: #1d4ed8;
+  border-color: #bfdbfe;
+}
+.fafkdr-badge--green {
+  background: #ecfdf5;
+  color: #047857;
+  border-color: #bbf7d0;
+}
+.fafkdr-badge--orange {
+  background: #fff7ed;
+  color: #c2410c;
+  border-color: #fed7aa;
+}
+.fafkdr-badge--purple {
+  background: #f5f3ff;
+  color: #6d28d9;
+  border-color: #ddd6fe;
+}
+.fafkdr-badge--pink {
+  background: #fdf2f8;
+  color: #be185d;
+  border-color: #fbcfe8;
+}
+.fafkdr-badge--slate {
+  background: #f1f5f9;
+  color: #334155;
+  border-color: #e2e8f0;
+}
+
+/* Shortcode rows */
+.fafkdr-shortcode-list {
+  display: flex;
+  flex-direction: column;
+  gap: 10px;
+}
+
+.fafkdr-shortcode-row {
+  display: grid;
+  grid-template-columns: 90px 1fr auto;
+  gap: 10px;
+  align-items: center;
+  padding: 10px;
+  border: 1px solid #e2e8f0;
+  border-radius: 12px;
+  background: #fff;
+}
+
+.fafkdr-shortcode {
+  display: block;
+  padding: 8px 10px;
+  background: #0b1220;
+  color: #e5e7eb;
+  border-radius: 10px;
+  overflow: auto;
+  cursor: pointer;
+}
+
+.fafkdr-muted {
+  color: #64748b;
+  font-size: 12px;
+}
+.fafkdr-actions-row {
+  display: flex;
+  gap: 8px;
+  flex-wrap: wrap;
+  margin-top: 12px;
+}
+
+.fafkdr-checklist {
+  margin: 0;
+  padding-left: 0;
+  list-style: none;
+  display: flex;
+  flex-direction: column;
+  gap: 10px;
+}
+.fafkdr-dot {
+  width: 10px;
+  height: 10px;
+  border-radius: 999px;
+  display: inline-block;
+  margin-right: 10px;
+  vertical-align: middle;
+}
+.fafkdr-dot--blue {
+  background: #3b82f6;
+}
+.fafkdr-dot--green {
+  background: #22c55e;
+}
+.fafkdr-dot--purple {
+  background: #a855f7;
+}
+.fafkdr-dot--orange {
+  background: #f97316;
+}
+
+.fafkdr-note {
+  margin-top: 14px;
+  padding: 10px 12px;
+  border-radius: 12px;
+  border: 1px dashed #cbd5e1;
+  background: #f8fafc;
+  color: #475569;
+  font-size: 13px;
+}
+
+/* Settings page: make WP settings tables match cards */
+.fafkdr-admin .form-table th{
+  width: 220px;
+  padding-top: 18px;
+}
+.fafkdr-admin .form-table td{
+  padding-top: 14px;
+}
+.fafkdr-admin .form-table input[type="text"],
+.fafkdr-admin .form-table input[type="email"],
+.fafkdr-admin .form-table input[type="number"],
+.fafkdr-admin .form-table select,
+.fafkdr-admin .form-table textarea{
+  border-radius: 10px;
+  border: 1px solid #e5e7eb;
+  padding: 8px 10px;
+}
